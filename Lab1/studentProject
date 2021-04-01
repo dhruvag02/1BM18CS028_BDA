@@ -1,0 +1,150 @@
+cqlsh> CREATE KEYSPACE Students WITH REPLICATION = {'class':'SimpleStrategy', 'replication_factor':1};
+cqlsh> DESCRIBE KEYSPACES
+
+students  system_schema  system_auth  system  system_distributed  system_traces
+
+cqlsh> USE Students;
+cqlsh:students> CREATE TABLE Student_info( RollNo int PRIMARY KEY, Name text, DOB timestamp, lastExamPercent double );
+cqlsh:students> DESCRIBE TABLE Student_info;
+
+CREATE TABLE students.student_info (
+    rollno int PRIMARY KEY,
+    dob timestamp,
+    lastexampercent double,
+    name text
+) WITH bloom_filter_fp_chance = 0.01
+    AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+    AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND crc_check_chance = 1.0
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99PERCENTILE';
+
+cqlsh:students> BEGIN BATCH INSERT INTO Student_info(RollNo, Name, DOB, lastExamPercent) VALUES(31, 'Guru Nanma', '2000-05-31', 99) APPLY BATCH;
+cqlsh:students> BEGIN BATCH INSERT INTO Student_info(RollNo, Name, DOB, lastExamPercent) VALUES(17, 'Anusree', '2000-05-19', 99) APPLY BATCH;
+cqlsh:students> BEGIN BATCH INSERT INTO Student_info(RollNo, Name, DOB, lastExamPercent) VALUES(147, 'Arpana', '2000-09-19', 98) APPLY BATCH;
+cqlsh:students> Select * from student_info
+            ... ;
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+------------
+     17 | 2000-05-18 18:30:00.000000+0000 |              99 |    Anusree
+    147 | 2000-09-18 18:30:00.000000+0000 |              98 |     Arpana
+     31 | 2000-05-30 18:30:00.000000+0000 |              99 | Guru Nanma
+
+cqlsh:students> select * from student_info where RollNo IN (17, 147);
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+---------
+     17 | 2000-05-18 18:30:00.000000+0000 |              99 | Anusree
+    147 | 2000-09-18 18:30:00.000000+0000 |              98 |  Arpana
+
+(2 rows)
+cqlsh:students> CREATE INDEX ON Student_info(Name);
+cqlsh:students> SELECT * FROM student_info WHERE Name='Arpana';
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+--------
+    147 | 2000-09-18 18:30:00.000000+0000 |              98 | Arpana
+
+(1 rows)
+cqlsh:students> SELECT RollNo, Name FROM Student_info LIMIT 2;
+
+ rollno | name
+--------+---------
+     17 | Anusree
+    147 |  Arpana
+
+(2 rows)
+cqlsh:students> SELECT RollNo, Name AS "Student Name" FROM Student_info;
+
+ rollno | Student Name
+--------+--------------
+     17 |      Anusree
+    147 |       Arpana
+     31 |   Guru Nanma
+     
+(3 rows)
+cqlsh:students> UPDATE student_info SET Name='Anusree K' WHERE RollNo=17;
+cqlsh:students> SELECT RollNo, Name AS "Student Name" FROM Student_info;
+
+ rollno | Student Name
+--------+--------------
+     17 |    Anusree K
+    147 |       Arpana
+     31 |   Guru Nanma
+
+(3 rows)
+
+cqlsh:students> SELECT * FROM Student_info WHERE RollNo=17;
+
+
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+-----------
+     17 | 2000-05-18 18:30:00.000000+0000 |              99 | Anusree K
+
+(1 rows)
+cqlsh:students> DELETE LastExAMPERCENT FROM Student_info where RollNo=17
+            ... ;
+cqlsh:students> SELECT * FROM Student_info WHERE RollNo=17;
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+-----------
+     17 | 2000-05-18 18:30:00.000000+0000 |            null | Anusree K
+
+(1 rows)
+cqlsh:students> DELETE FROM Student_info where RollNo=17 ;
+cqlsh:students> SELECT * FROM Student_info;
+
+ rollno | dob                             | lastexampercent | name
+--------+---------------------------------+-----------------+------------
+    147 | 2000-09-18 18:30:00.000000+0000 |              98 |     Arpana
+     31 | 2000-05-30 18:30:00.000000+0000 |              99 | Guru Nanma
+
+(2 rows)
+
+CREATE TABLE project_details(project_id int, project_name text, stud_name text, rating double, duration int, PRIMARY KEY(project_id, project_name));
+cqlsh:students> BEGIN BATCH
+            ... INSERT INTO project_details(project_id, project_name, stud_name, rating, duration) VALUES (1, 'MS Data Migration', 'David', 3.5, 720)
+            ... APPLY BATCH;
+cqlsh:students> BEGIN BATCH INSERT INTO project_details(project_id, project_name, stud_name, rating, duration) VALUES (1, 'MS Data Warehouse', 'David', 3.9, 1440) APPLY BATCH;
+cqlsh:students> BEGIN BATCH INSERT INTO project_details(project_id, project_name, stud_name, rating, duration) VALUES (2, 'SAP Reporting', 'Stephen', 3.7, 1430) APPLY BATCH;
+cqlsh:students> SELECT * FROM project_details;
+
+ project_id | project_name      | duration | rating | stud_name
+------------+-------------------+----------+--------+-----------
+          1 | MS Data Migration |      720 |    3.5 |     David
+          1 | MS Data Warehouse |     1440 |    3.9 |     David
+          2 |     SAP Reporting |     1430 |    3.7 |   Stephen
+
+(3 rows)
+cqlsh:students> SELECT * FROM project_details WHERE project_id=1;
+
+ project_id | project_name      | duration | rating | stud_name
+------------+-------------------+----------+--------+-----------
+          1 | MS Data Migration |      720 |    3.5 |     David
+          1 | MS Data Warehouse |     1440 |    3.9 |     David
+
+(2 rows)
+cqlsh:students> SELECT * FROM project_details WHERE project_name='MS Data Warehouse' ALLOW FILTERING;
+
+ project_id | project_name      | duration | rating | stud_name
+------------+-------------------+----------+--------+-----------
+          1 | MS Data Warehouse |     1440 |    3.9 |     David
+
+(1 rows)
+
+cqlsh:students> SELECT * FROM project_details WHERE project_id =1 ORDER BY project_name DESC;
+
+ project_id | project_name      | duration | rating | stud_name
+------------+-------------------+----------+--------+-----------
+          1 | MS Data Warehouse |     1440 |    3.9 |     David
+          1 | MS Data Migration |      720 |    3.5 |     David
