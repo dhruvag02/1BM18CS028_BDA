@@ -1,0 +1,26 @@
+$ hadoop version
+Hadoop 2.9.0
+Subversion https://git-wip-us.apache.org/repos/asf/hadoop.git -r 756ebc8394e473ac25feac05fa493f6d612e6c50
+Compiled by arsuresh on 2017-11-13T23:15Z
+Compiled with protoc 2.5.0
+From source with checksum 0a76a9a32a5257331741f8d5932f183
+This command was run using /usr/local/hadoop/share/hadoop/common/hadoop-common-2.9.0.jar
+
+$ hadoop fs -cat /geeks/exampleFile2.txt
+This is an example file. We are working with hadoop. Hadoop is used for Big Data
+
+$ hadoop fs -ls /geeks
+21/04/17 13:53:37 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Found 1 items
+-rw-r--r--   1 hadoopusr supergroup         83 2021-04-17 13:52 /geeks/exampleFile2.txt
+
+$ hadoop fs -put exampleFile2.txt /geeks
+
+$ hadoop fs -mkdir /dir
+$ hadoop fs -ls /
+21/04/17 14:03:05 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Found 4 items
+-rw-r--r--   1 hadoopusr supergroup          0 2021-04-17 13:33 /ap.txt
+drwxr-xr-x   - hadoopusr supergroup          0 2021-04-17 14:01 /dir
+drwxr-xr-x   - hadoopusr supergroup          0 2021-04-17 12:33 /directory1
+drwxr-xr-x   - hadoopusr supergroup          0 2021-04-17 13:52 /geeks
