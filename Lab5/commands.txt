@@ -1,0 +1,17 @@
+Commands
+
+hdfs namenode -format //optional
+cd hadoop-3.3.0/sbin
+start-dfs
+start-yarn
+jps
+
+hdfs dfs -mkdir /input_dir
+hdfs dfs -ls /
+hdfs dfs -copyFromLocal D:\input_file.txt /input_dir
+hdfs dfs -cat /input_dir/input_file.txt
+
+// download MapReduceClient.jar
+
+hadoop jar D:\MapReduceClient.jar wordcount /input_dir /output_dir
+hdfs dfs -cat /output_dir/*
